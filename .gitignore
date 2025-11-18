@@ -1,0 +1,43 @@
+# Ignorar node_modules
+node_modules/
+
+# Ignorar archivos de entorno
+.env
+.env.local
+.env.*.local
+
+# Ignorar archivos de build
+.next/
+out/
+build/
+dist/
+
+# Ignorar logs
+*.log
+npm-debug.log*
+
+# Ignorar archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Ignorar archivos de IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Ignorar archivos temporales
+*.tmp
+temp/
+
+# Ignorar documentación y migraciones (seguridad)
+APLICAR_MIGRACION_*.md
+CAMBIOS_REALIZADOS.md
+*_README.md
+supabase/migrations/*.sql
+!supabase/migrations/.gitkeep
+
+# Ignorar archivos de configuración sensibles
+*.backup
+*.sql.bak
