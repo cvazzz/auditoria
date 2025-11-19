@@ -1,0 +1,122 @@
+# 🚀 Instrucciones para Subir Cambios a GitHub
+
+## Repositorio
+https://github.com/cvazzz/auditoria.git
+
+---
+
+## Opción 1: Usando el Script PowerShell (Recomendado para Windows)
+
+1. Abre **PowerShell** en la carpeta del proyecto
+2. Ejecuta el script:
+   ```powershell
+   .\push-to-github.ps1
+   ```
+
+---
+
+## Opción 2: Usando Git Bash
+
+1. Abre **Git Bash** en la carpeta del proyecto
+2. Ejecuta:
+   ```bash
+   bash push-to-github.sh
+   ```
+
+---
+
+## Opción 3: Comandos Manuales
+
+Si prefieres hacerlo paso a paso:
+
+```bash
+# 1. Ver estado de archivos
+git status
+
+# 2. Agregar archivos modificados
+git add frontend/pages/audit.js
+git add frontend/pages/dashboard.js
+git add frontend/components/ReimbursementForm.js
+git add frontend/pages/api/reimbursements/create.js
+git add frontend/styles/globals.css
+git add .gitignore
+
+# 3. Crear commit
+git commit -m "feat: Mejoras en UI/UX - Panel lateral arreglado y formulario rediseñado"
+
+# 4. Subir a GitHub
+git push origin main
+```
+
+---
+
+## 📋 Archivos que se Subirán
+
+✅ **Incluidos:**
+- `frontend/pages/audit.js` (Panel lateral arreglado)
+- `frontend/pages/dashboard.js` (Mejoras visuales)
+- `frontend/components/ReimbursementForm.js` (Formulario rediseñado)
+- `frontend/pages/api/reimbursements/create.js` (API actualizada)
+- `frontend/styles/globals.css` (Animaciones)
+- `.gitignore` (Actualizado)
+
+❌ **Excluidos (por seguridad):**
+- Archivos `.md` de documentación
+- Archivos `.sql` de migraciones
+- Variables de entorno (`.env`)
+- Archivos temporales
+
+---
+
+## 🔑 Requisitos
+
+1. **Git instalado**
+   - Descarga: https://git-scm.com/download/win
+   - Verifica: `git --version`
+
+2. **Credenciales configuradas**
+   ```bash
+   git config --global user.name "Tu Nombre"
+   git config --global user.email "tu@email.com"
+   ```
+
+3. **Autenticación con GitHub**
+   - Token de acceso personal (PAT)
+   - O clave SSH configurada
+
+---
+
+## 🆘 Solución de Problemas
+
+### "Git no se reconoce como comando"
+- Instala Git: https://git-scm.com/download/win
+- Reinicia PowerShell después de instalar
+
+### "Authentication failed"
+- Usa un Personal Access Token en lugar de contraseña
+- Genera uno en: GitHub → Settings → Developer settings → Personal access tokens
+
+### "Repository not found"
+- Verifica que tengas acceso al repositorio
+- Comprueba la URL: `git remote -v`
+
+---
+
+## ✅ Verificación
+
+Después de subir los cambios:
+
+1. Ve a: https://github.com/cvazzz/auditoria
+2. Verifica que aparezca el último commit
+3. Revisa que los archivos estén actualizados
+
+---
+
+## 📝 Nota Importante
+
+Los archivos de documentación (.md) y migraciones (.sql) fueron excluidos por seguridad.
+Si necesitas compartirlos, hazlo por un canal privado.
+
+---
+
+**¡Listo para subir! 🚀**

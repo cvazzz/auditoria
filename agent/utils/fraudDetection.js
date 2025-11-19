@@ -55,19 +55,27 @@ async function checkDuplicateImage(imageHash, currentReimbId) {
   if (!imageHash) return null;
   
   try {
+    console.log(`[FraudDetection] Buscando duplicados de hash: ${imageHash}, excluyendo: ${currentReimbId}`);
+    
     const { data, error } = await supabase
       .from('reimbursements')
       .select('id, created_at, reported_amount, status')
       .eq('image_hash', imageHash)
       .neq('id', currentReimbId)
-      .single();
+      .limit(1); // Cambiar .single() por .limit(1) para obtener array
     
-    if (error && error.code !== 'PGRST116') { // PGRST116 = no rows
-      console.error(`[FraudDetection] Error buscando duplicados: ${error.message}`);
+    if (error) {
+      console.error(`[FraudDetection] Error buscando duplicados: ${error.message}, code: ${error.code}`);
       return null;
     }
     
-    return data;
+    if (data && data.length > 0) {
+      console.log(`[FraudDetection] ✓ DUPLICADO ENCONTRADO:`, data[0]);
+      return data[0]; // Retornar el primer resultado
+    } else {
+      console.log(`[FraudDetection] No se encontraron duplicados`);
+      return null;
+    }
   } catch (error) {
     console.error(`[FraudDetection] Error en checkDuplicateImage: ${error.message}`);
     return null;
@@ -89,14 +97,14 @@ async function checkDuplicateOperation(operationNumber, currentReimbId) {
       .select('id, created_at, reported_amount, status')
       .eq('operation_number', operationNumber)
       .neq('id', currentReimbId)
-      .single();
+      .limit(1); // Cambiar .single() por .limit(1)
     
-    if (error && error.code !== 'PGRST116') {
+    if (error) {
       console.error(`[FraudDetection] Error buscando operación: ${error.message}`);
       return null;
     }
     
-    return data;
+    return (data && data.length > 0) ? data[0] : null;
   } catch (error) {
     console.error(`[FraudDetection] Error en checkDuplicateOperation: ${error.message}`);
     return null;
@@ -154,6 +162,12 @@ async function validateReimbursement(reimb, ocrResult, imageUrls) {
   
   const warnings = [];
   let imageHash = null;
+  
+  // 0. AGREGAR ADVERTENCIAS DEL OCR/RECEIPT VALIDATOR
+  if (ocrResult.warnings && Array.isArray(ocrResult.warnings)) {
+    warnings.push(...ocrResult.warnings);
+    console.log(`[FraudDetection] Advertencias del OCR/Validator: ${ocrResult.warnings.length}`);
+  }
   
   // 1. VALIDAR HASH DE IMAGEN (duplicado exacto)
   if (imageUrls && imageUrls.length > 0) {

@@ -1,0 +1,52 @@
+═══════════════════════════════════════════════════════
+  COMANDOS PARA EJECUTAR EN GIT BASH
+═══════════════════════════════════════════════════════
+
+1. Abre Git Bash en la carpeta del proyecto:
+   - Click derecho en la carpeta "Auditoria"
+   - Selecciona "Git Bash Here"
+
+2. Copia y pega estos comandos UNO POR UNO:
+
+───────────────────────────────────────────────────────
+# Paso 1: Ver estado
+───────────────────────────────────────────────────────
+git status
+
+───────────────────────────────────────────────────────
+# Paso 2: Agregar archivos modificados
+───────────────────────────────────────────────────────
+git add frontend/pages/audit.js
+git add frontend/pages/dashboard.js
+git add frontend/components/ReimbursementForm.js
+git add frontend/pages/api/reimbursements/create.js
+git add frontend/styles/globals.css
+git add .gitignore
+
+───────────────────────────────────────────────────────
+# Paso 3: Ver qué se va a subir
+───────────────────────────────────────────────────────
+git status
+
+───────────────────────────────────────────────────────
+# Paso 4: Crear commit
+───────────────────────────────────────────────────────
+git commit -m "feat: Mejoras UI/UX - Panel lateral arreglado y formulario rediseñado"
+
+───────────────────────────────────────────────────────
+# Paso 5: Subir a GitHub
+───────────────────────────────────────────────────────
+git push origin main
+
+───────────────────────────────────────────────────────
+Si la rama es "master" en lugar de "main", usa:
+───────────────────────────────────────────────────────
+git push origin master
+
+═══════════════════════════════════════════════════════
+
+✅ DESPUÉS DE EJECUTAR:
+- Ve a: https://github.com/cvazzz/auditoria
+- Verifica que los cambios estén subidos
+
+═══════════════════════════════════════════════════════

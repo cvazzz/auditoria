@@ -1425,9 +1425,9 @@ export default function AuditPage() {
         </div>
 
         {/* Contenido principal */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="relative">
           {/* Lista de reembolsos */}
-          <div className={`${selectedReimb ? '' : 'lg:col-span-2'}`}>
+          <div className={`transition-all duration-300 ${selectedReimb ? 'mr-0 lg:mr-[46%]' : ''}`}>
             <div className="bg-white rounded-lg shadow-sm p-4 mb-4">
               <h2 className="text-lg font-semibold">
                 Reembolsos ({filteredReimbursements.length})
@@ -1449,9 +1449,18 @@ export default function AuditPage() {
                 {filteredReimbursements.map((reimb) => (
                   <div
                     key={reimb.id}
-                    onClick={() => setSelectedReimb(reimb)}
+                    onClick={() => {
+                      console.log('[Audit] Reembolso seleccionado:', reimb.id, reimb);
+                      setSelectedReimb(reimb);
+                      // Scroll al panel en móviles
+                      if (window.innerWidth < 1024) {
+                        setTimeout(() => {
+                          document.getElementById('detailPanel')?.scrollIntoView({ behavior: 'smooth' });
+                        }, 100);
+                      }
+                    }}
                     className={`bg-white rounded-lg shadow-sm p-4 cursor-pointer hover:shadow-md transition ${
-                      selectedReimb?.id === reimb.id ? 'ring-2 ring-blue-500' : ''
+                      selectedReimb?.id === reimb.id ? 'ring-2 ring-blue-500 bg-blue-50' : ''
                     }`}
                   >
                     <div className="flex justify-between items-start mb-2">
@@ -1534,10 +1543,10 @@ export default function AuditPage() {
             </div>
           </div>
 
-          {/* Panel de detalle y decisión */}
+          {/* Panel de detalle y decisión - FIJO AL LADO DERECHO */}
           {selectedReimb && (
-            <div className="lg:col-span-1">
-              <div className="bg-white rounded-lg shadow-lg p-6 sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto">
+            <div className="fixed right-0 top-20 w-full lg:w-[45%] h-[calc(100vh-5rem)] bg-white shadow-2xl border-l-4 border-blue-500 overflow-y-auto z-40 animate-slideIn" id="detailPanel">
+              <div className="p-6">
                   <div className="flex justify-between items-center mb-4">
                     <h2 className="text-xl font-semibold">Revisar Reembolso</h2>
                     <button

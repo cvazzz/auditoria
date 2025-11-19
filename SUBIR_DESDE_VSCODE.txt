@@ -1,0 +1,78 @@
+═══════════════════════════════════════════════════════════════
+  GUÍA PASO A PASO PARA SUBIR CAMBIOS DESDE VS CODE
+═══════════════════════════════════════════════════════════════
+
+📋 PASO 1: Abrir Control de Código Fuente
+───────────────────────────────────────────────────────────────
+- Presiona: Ctrl + Shift + G
+- O haz clic en el ícono de ramificación (🌿) en la barra lateral
+
+📝 PASO 2: Seleccionar Archivos para Subir
+───────────────────────────────────────────────────────────────
+En la sección "Changes", haz clic en el "+" junto a estos archivos:
+
+✅ frontend/pages/audit.js
+✅ frontend/pages/dashboard.js  
+✅ frontend/components/ReimbursementForm.js
+✅ frontend/pages/api/reimbursements/create.js
+✅ frontend/styles/globals.css
+✅ .gitignore
+
+❌ NO agregues:
+   - Archivos .md (APLICAR_MIGRACION_*, CAMBIOS_REALIZADOS.md, etc)
+   - Archivos .sql
+   - Archivos .txt de instrucciones
+
+📨 PASO 3: Escribir Mensaje de Commit
+───────────────────────────────────────────────────────────────
+En el cuadro de texto arriba, escribe:
+
+feat: Mejoras UI/UX - Panel lateral y formulario rediseñado
+
+- Panel lateral del auditor movido a la izquierda
+- Panel no se cierra al cambiar entre tabs
+- Formulario de reembolso completamente rediseñado
+- Campo de descripción/razón del gasto agregado
+- Vista previa de imágenes al subir archivos
+- Mejoras visuales con gradientes y animaciones
+
+✅ PASO 4: Hacer Commit
+───────────────────────────────────────────────────────────────
+- Presiona: Ctrl + Enter
+- O haz clic en el botón "✓ Commit"
+
+🚀 PASO 5: Subir a GitHub (Push)
+───────────────────────────────────────────────────────────────
+- Haz clic en el botón "..." (tres puntos) en la parte superior
+- Selecciona "Push"
+- O presiona el botón de sincronización (⟳) si aparece
+
+🔐 PASO 6: Autenticación (si te lo pide)
+───────────────────────────────────────────────────────────────
+VS Code abrirá tu navegador para autenticar con GitHub.
+Sigue las instrucciones en pantalla.
+
+✅ PASO 7: Verificar
+───────────────────────────────────────────────────────────────
+Ve a: https://github.com/cvazzz/auditoria
+Verifica que los cambios estén subidos.
+
+═══════════════════════════════════════════════════════════════
+
+💡 TIPS:
+- Si no ves el botón Push, busca "Sync Changes"
+- Si te pide credenciales, usa tu token de GitHub
+- Puedes ver el historial en la pestaña "Timeline"
+
+═══════════════════════════════════════════════════════════════
+
+🆘 SI HAY PROBLEMAS:
+
+Problema: "No se puede hacer push"
+Solución: Haz pull primero (Git → Pull desde el menú)
+
+Problema: "Authentication failed"
+Solución: Ve a GitHub → Settings → Developer settings 
+         → Personal access tokens → Generate new token
+
+═══════════════════════════════════════════════════════════════

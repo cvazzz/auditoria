@@ -135,22 +135,7 @@ async function processReimbursement(reimb) {
       texto_sample: tRes.texto?.substring(0, 200)
     });
     
-    // VALIDAR TIPO DE RECIBO (negociación vs confirmado)
-    if (tRes.validation_action === 'REJECT') {
-      console.log(`[Agent] ❌ RECHAZADO por tipo de recibo inválido: ${tRes.receipt_type}`);
-      reimb.ai_result = `RECIBO NO VÁLIDO: ${tRes.receipt_warnings[0]?.message || 'Screenshot de negociación o incompleto'}`;
-      reimb.ai_confidence = tRes.best_confidence;
-      reimb.status = 'REJECTED';
-      reimb.detected_amount = tRes.detected_amount;
-      reimb.receipt_type = tRes.receipt_type;
-      reimb.operation_number = tRes.operation_number;
-      reimb.receipt_date = tRes.receipt_date;
-      reimb.fraud_warnings = tRes.receipt_warnings;
-      await saveToDb(reimb);
-      return;
-    }
-    
-    // VALIDAR FRAUDE (duplicados, operaciones repetidas, fechas sospechosas)
+    // VALIDAR FRAUDE PRIMERO (para calcular hash y detectar duplicados SIEMPRE)
     console.log('[Agent] Validando fraude (duplicados, operaciones, fechas)...');
     const fraudValidation = await validateReimbursement(reimb, tRes, urls);
     
@@ -161,21 +146,32 @@ async function processReimbursement(reimb) {
       action: fraudValidation.action
     });
     
-    if (fraudValidation.action === 'REJECT') {
-      console.log(`[Agent] ❌ RECHAZADO por fraude: ${fraudValidation.warnings[0]?.message}`);
-      reimb.ai_result = `FRAUDE DETECTADO: ${fraudValidation.warnings[0]?.message}`;
+    // VALIDAR TIPO DE RECIBO (negociación vs confirmado)
+    // Si es REJECT por tipo inválido O por fraude, rechazar con TODAS las advertencias
+    if (tRes.validation_action === 'REJECT' || fraudValidation.action === 'REJECT') {
+      const allWarnings = [...(tRes.receipt_warnings || []), ...fraudValidation.warnings];
+      const allMessages = allWarnings.map(w => w.message).join(' | ');
+      
+      console.log(`[Agent] ❌ RECHAZADO (${allWarnings.length} advertencias):`);
+      allWarnings.forEach((w, i) => {
+        console.log(`  ${i + 1}. [${w.severity}] ${w.message}`);
+      });
+      
+      reimb.ai_result = `FRAUDE/RECIBO INVÁLIDO: ${allMessages}`;
       reimb.ai_confidence = tRes.best_confidence;
       reimb.status = 'REJECTED';
       reimb.detected_amount = tRes.detected_amount;
       reimb.receipt_type = tRes.receipt_type;
-      reimb.operation_number = fraudValidation.operation_number;
-      reimb.receipt_date = fraudValidation.receipt_date;
+      reimb.operation_number = tRes.operation_number;
+      reimb.receipt_date = tRes.receipt_date;
       reimb.image_hash = fraudValidation.image_hash;
-      reimb.fraud_warnings = fraudValidation.warnings;
+      reimb.fraud_warnings = allWarnings;
       await saveToDb(reimb);
       return;
     }
     
+    // Si llegamos aquí, el recibo es válido y no hay fraude crítico
+    // Revisar si hay advertencias de severidad HIGH (requiere revisión manual)
     if (fraudValidation.action === 'MANUAL_REVIEW') {
       console.log(`[Agent] ⚠️ Requiere revisión manual por advertencias: ${fraudValidation.warnings.map(w => w.type).join(', ')}`);
       // Continuar procesamiento pero marcar para revisión
