@@ -93,6 +93,7 @@ export default function AuditPage() {
 
   const loadSupervisors = useCallback(async () => {
     try {
+      console.log('[Audit] Cargando directorio de supervisores...');
       const { data, error } = await supabase
         .from('profiles')
         .select('id, full_name, zone, email, role')
@@ -101,9 +102,15 @@ export default function AuditPage() {
 
       if (error) throw error;
 
+      console.log('[Audit] Supervisores cargados:', data?.length || 0, data);
       setSupervisorDirectory(data || []);
+      
+      if (!data || data.length === 0) {
+        console.warn('[Audit] ⚠️ No hay supervisores registrados en la base de datos');
+        console.warn('[Audit] 💡 Ejecuta CREAR_SUPERVISOR_JUAN.sql en Supabase para crear datos de prueba');
+      }
     } catch (error) {
-      console.error('Error loading supervisors:', error);
+      console.error('[Audit] Error loading supervisors:', error);
     }
   }, []);
 
@@ -230,12 +237,12 @@ export default function AuditPage() {
         throw error;
       }
 
-      console.log('Reembolsos cargados:', data?.length || 0, data);
+      console.log('Reembolsos cargados:', data?.length || 0);
       
       // Cargar perfiles por separado
       if (data && data.length > 0) {
         const profileIds = [...new Set(data.map(r => r.profile_id).filter(Boolean))];
-        console.log('Profile IDs a cargar:', profileIds);
+        console.log('Profile IDs únicos a cargar:', profileIds);
         
         const { data: profilesData, error: profilesError } = await supabase
           .from('profiles')
@@ -245,16 +252,21 @@ export default function AuditPage() {
         if (profilesError) {
           console.error('Error cargando perfiles:', profilesError);
         } else {
-          console.log('Perfiles cargados:', profilesData?.length || 0);
+          console.log('Perfiles cargados exitosamente:', profilesData?.length || 0);
+          console.log('Detalles de perfiles:', profilesData);
           
           // Mapear perfiles a los reembolsos
           const profilesMap = {};
           profilesData?.forEach(p => {
             profilesMap[p.id] = p;
+            console.log(`Mapeando perfil: ${p.id} -> ${p.full_name || p.email}`);
           });
           
           data.forEach(r => {
             r.profiles = profilesMap[r.profile_id] || null;
+            if (!r.profiles) {
+              console.warn(`Reembolso ${r.id} no tiene perfil asociado para profile_id: ${r.profile_id}`);
+            }
           });
         }
       }
@@ -470,7 +482,15 @@ export default function AuditPage() {
   }
 
   // Obtener lista única de supervisores con sus nombres
+  // Combinar supervisores del directorio con los que tienen reembolsos
   const supervisorMap = {};
+  
+  // Agregar todos los supervisores del directorio primero
+  supervisorDirectory.forEach(sup => {
+    supervisorMap[sup.id] = sup.full_name || sup.email || 'Sin nombre';
+  });
+  
+  // Agregar supervisores de reembolsos (sobrescribe si ya existe)
   reimbursements.forEach(r => {
     if (r.profile_id && r.profiles?.full_name) {
       supervisorMap[r.profile_id] = r.profiles.full_name;
@@ -480,8 +500,10 @@ export default function AuditPage() {
   const supervisors = Object.values(supervisorMap);
   const supervisorIds = Object.keys(supervisorMap);
   
+  console.log('Supervisor Directory:', supervisorDirectory);
   console.log('Supervisor Map:', supervisorMap);
-  console.log('Supervisors:', supervisors);
+  console.log('Supervisors disponibles:', supervisors);
+  console.log('Reembolsos con profiles:', reimbursements.filter(r => r.profiles).length, '/', reimbursements.length);
 
   const sidebarPanel = useMemo(() => {
     if (activeSidebarTab === 'profile') {
@@ -1434,8 +1456,13 @@ export default function AuditPage() {
                   >
                     <div className="flex justify-between items-start mb-2">
                       <div>
-                        <h3 className="font-semibold">{reimb.profiles?.full_name}</h3>
-                        <p className="text-sm text-gray-600">{reimb.profiles?.zone}</p>
+                        <h3 className="font-semibold">
+                          {reimb.profiles?.full_name || 'Sin nombre'}
+                        </h3>
+                        <p className="text-sm text-gray-600">
+                          {reimb.profiles?.email || 'Sin email'}
+                          {reimb.profiles?.zone && ` • ${reimb.profiles.zone}`}
+                        </p>
                       </div>
                       <div className="flex flex-col items-end space-y-1">
                         <span className={`px-2 py-1 rounded text-xs font-medium ${
@@ -1526,10 +1553,21 @@ export default function AuditPage() {
                     {/* Info del empleado */}
                     <div className="border-b pb-4">
                       <h3 className="font-medium text-gray-700 mb-2">Empleado</h3>
-                      <p className="text-sm"><span className="font-medium">Nombre:</span> {selectedReimb.profiles?.full_name}</p>
-                      <p className="text-sm"><span className="font-medium">Email:</span> {selectedReimb.profiles?.email}</p>
-                      <p className="text-sm"><span className="font-medium">Zona:</span> {selectedReimb.profiles?.zone}</p>
+                      <p className="text-sm"><span className="font-medium">Nombre:</span> {selectedReimb.profiles?.full_name || 'No especificado'}</p>
+                      <p className="text-sm"><span className="font-medium">Email:</span> {selectedReimb.profiles?.email || 'No especificado'}</p>
+                      <p className="text-sm"><span className="font-medium">Zona:</span> {selectedReimb.profiles?.zone || 'No especificada'}</p>
+                      <p className="text-sm"><span className="font-medium">Rol:</span> {selectedReimb.profiles?.role || 'No especificado'}</p>
                     </div>
+
+                    {/* Descripción del Gasto */}
+                    {selectedReimb.description && (
+                      <div className="border-b pb-4">
+                        <h3 className="font-medium text-gray-700 mb-2">📝 Razón del Gasto</h3>
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                          <p className="text-sm text-gray-800 leading-relaxed">{selectedReimb.description}</p>
+                        </div>
+                      </div>
+                    )}
 
                     {/* Montos */}
                     <div className="border-b pb-4">
